@@ -1,0 +1,23 @@
+{
+  "id": "/?app-id=proyectos-v2",
+  "name": "Fitsyle PWA (Local)",
+  "short_name": "Fitsyle",
+  "description": "PWA lista para instalar en localhost con botón de instalación.",
+  "start_url": "./index.html?homescreen=v2",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d6efd",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

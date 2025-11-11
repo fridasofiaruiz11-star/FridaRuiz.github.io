@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitSyle</title>
+     <!-- Dependencias (Bootstrap y Fuentes) -->
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+     
+   <!-- PWA (Manifiesto y tema) -->
+    <link rel="manifest" href="./manifest.webmanifest">
+    <meta name="theme-color" content="#014421">
+    <!-- CORRECCION: se cambia el icono para que sea el mismo del manifest -->
+    <link rel="apple-touch-icon" href="./icons/icon.png">
+     
+     <!-- Estilos Generales de la Pagina -->
+    <style>
+        body {
+            background-color: #F5F5F5; /* Fondo */
+        }
+
+        /* === Color y tamaño de la barra superior === */
+        .header-bar {
+            background-color: #09e0e0; 
+            height: 200px; /* Aumenté la altura de la barra */
+            display: flex;
+            align-items: center;
+            justify-content: center; /* título centrado */
+            color: white;
+            /* Fija la barra en la parte superior */
+            position: sticky; 
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* === botones y el estilo gris === */
+        .buttons-container {
+            display: flex; justify-content: center;gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap; /* Para mejor responsividad */
+        }
+
+        .btn-custom {
+            background-color: #C0C0C0; /* Color de botones */
+            color: black;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn-custom:hover {
+            background-color: #a9a9a9;
+        }
+
+        .thumb { 
+            height: 70px;
+            object-fit: cover;
+            border-radius: .35rem;
+        }
+
+        .thumbs-grid { 
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: .5rem;
+        }
+
+        .card-header {
+            background-color: #36076f !important; /* Color de barra de tarjetas */
+        }
+
+        /* Estilo para el botón de eliminación en la tarjeta */
+        .card-header .btn-light {
+            --bs-btn-padding-y: .25rem; 
+            --bs-btn-padding-x: .5rem; 
+            --bs-btn-font-size: .75rem;
+        }
+
+        /* Estilo para el footer */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 1rem 0;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+      <!-- === Header (Logo, Titulo, Iconos) === -->
+    <header class="header-bar">
+        <h1 class="display-6 mb-0">𝐅𝐢𝐭𝐬𝐲𝐥𝐞 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐨𝐬</h1>
+    </header>
+
+    <main class="container py-3">
+        <div class="text-center">
+            <div class="buttons-container">
+                <button type="button" class="btn btn-custom btn-lg shadow-sm" data-bs-toggle="modal" data-bs-target="#productoModal">
+                    <i class="bi bi-plus-square-fill me-2"></i> 𝐑𝐞𝐠𝐢𝐬𝐭𝐫𝐚𝐫 𝐍𝐮𝐞𝐯𝐨 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐨 
+                </button>
+                <button id="clearAll" class="btn btn-custom btn-lg ms-2 shadow-sm">
+                    <i class="bi bi-eraser-fill me-2"></i> 𝐋𝐢𝐦𝐩𝐢𝐚𝐫 𝐭𝐨𝐝𝐨 (𝐋𝐨𝐜𝐚𝐥𝐒𝐭𝐨𝐫𝐚𝐠𝐞)
+                    
+
+                </button>
+            </div>
+        </div>
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content dark-confirm">
+                
+                      <div class="modal-body dark-confirm">
+                         <span class="confirm-title-text">FridaRuiz.github.io</span>
+                    <p id="confirmModalBodyMessage" class="mb-0">¿Estás seguro de que quieres realizar esta acción?</p>
+                </div>
+                
+                <div class="modal-footer dark-confirm gap-2">
+                    <button type="button" class="btn btn-primary" id="confirmModalAcceptBtn">Aceptar</button>
+                    <button type="button" class="btn btn-secondary-custom" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        <div id="productsContainer" class="row mt-5">
+            </div>
+
+    </main>
+
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#044946; color:white;">
+                    <h5 class="modal-title" id="productoModalLabel">𝐫𝐞𝐠𝐢𝐬𝐭𝐫𝐚𝐫 𝐧𝐮𝐞𝐯𝐨 𝐩𝐫𝐨𝐝𝐮𝐜𝐭𝐨</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="productoForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="producto" class="form-label">𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐨</label>
+                                <input type="text" class="form-control" id="producto" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clave" class="form-label">𝐂𝐥𝐚𝐯𝐞</label>
+                                <input type="text" class="form-control" id="clave" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label">𝐍𝐨𝐦𝐛𝐫𝐞</label>
+                                <input type="text" class="form-control" id="nombre" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="precio" class="form-label">𝐏𝐫𝐞𝐜𝐢𝐨</label>
+                                <input type="number" class="form-control" id="precio" placeholder="0.00" step="0.01" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="stock" class="form-label">𝐒𝐭𝐨𝐜𝐤</label>
+                                <input type="number" class="form-control" id="stock" required />
+                            </div>
+                            <div class="col-12">
+                                <label for="descripcion" class="form-label">𝐃𝐞𝐬𝐜𝐫𝐢𝐩𝐜𝐢ó𝐧</label>
+                                <textarea class="form-control" id="descripcion" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label for="imagenes" class="form-label">𝐈𝐦𝐚𝐠𝐞𝐧𝐞𝐬 𝐝𝐞𝐥 𝐩𝐫𝐨𝐝𝐮𝐜𝐭𝐨</label>
+                                <input type="file" id="imagenes" class="form-control" accept="image/*" multiple />
+                                <div class="form-text">𝐒𝐞 𝐠𝐮𝐚𝐫𝐝𝐚𝐧 𝐭𝐞𝐦𝐩𝐨𝐫𝐚𝐥𝐦𝐞𝐧𝐭𝐞 𝐜𝐨𝐦𝐨 𝐃𝐚𝐭𝐚 𝐔𝐑𝐋𝐬 𝐞𝐧 𝐞𝐥 𝐋𝐨𝐜𝐚𝐥𝐒𝐭𝐨𝐫𝐚𝐠𝐞 (𝐥í𝐦𝐢𝐭𝐞 𝟓–𝟏𝟎 𝐌𝐁).</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">𝐂𝐚𝐧𝐜𝐞𝐥𝐚𝐫</button>
+                    <button type="submit" form="productoForm" class="btn btn-custom">𝐆𝐮𝐚𝐫𝐝𝐚𝐫 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐨 </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+     <!-- Script de Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Código JavaScript existente
+        const modal = new bootstrap.Modal(document.getElementById('productoModal'));
+        let productos = [];
+        const LS_KEY = 'productos';
+
+        function saveToLS() {
+            localStorage.setItem(LS_KEY, JSON.stringify(productos));
+        }
+
+        function loadFromLS() {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                productos = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                console.warn('LocalStorage corrupto, se reinicia.', e);
+                productos = [];
+                localStorage.removeItem(LS_KEY);
+            }
+        }
+
+        function readFilesAsDataURLs(fileList) {
+            const files = Array.from(fileList || []);
+            const readers = files.map(file => new Promise((resolve, reject) => {
+                const fr = new FileReader();
+                fr.onload = () => resolve({ name: file.name, type: file.type, dataURL: fr.result });
+                fr.onerror = reject;
+                fr.readAsDataURL(file);
+            }));
+            return Promise.all(readers);
+        }
+        // --- Funcion Principal de Renderizado ---
+        function renderProducts() {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = "";
+            if (productos.length === 0) {
+                 container.innerHTML = `<div class="col-12 text-center my-5"><p class="lead text-muted">Aún no hay productos registrados. ¡Usa el botón para añadir el primero!</p></div>`;
+                 return;
+            }
+
+            productos.forEach((producto, idx) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4 mb-4';
+                const thumbs = (producto.imagenes || []).slice(0, 3)
+                    .map(img => `<img class="thumb w-100" src="${img.dataURL}" alt="${producto.nombre}" loading="lazy"/>`)
+                    .join('');
+                const extraCount = (producto.imagenes?.length || 0) - 3;
+                const extraBadge = extraCount > 0 ? `<span class="badge bg-secondary">+${extraCount} más</span>` : '';
+
+                col.innerHTML = `
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header d-flex align-items-center justify-content-between text-white">
+                            <h5 class="card-title mb-0">${producto.nombre}</h5>
+                            <button class="btn btn-sm btn-light" data-action="delete" data-index="${idx}">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Producto:</strong> ${producto.producto}</p>
+                            <p><strong>Clave:</strong> ${producto.clave}</p>
+                            <p><strong>Precio:</strong> $${Number(producto.precio).toFixed(2)}</p>
+                            <p><strong>Stock:</strong> ${producto.stock}</p>
+                            <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
+                            ${(producto.imagenes && producto.imagenes.length)
+                                ? `<div class="thumbs-grid mt-2">${thumbs}</div>${extraBadge ? `<div class="mt-2">${extraBadge}</div>` : ''}`
+                                : '<div class="text-muted"><em>Sin imágenes</em></div>'}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+             // Asignar eventos a los botones de borrar
+            container.querySelectorAll('[data-action="delete"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const i = Number(e.currentTarget.getAttribute('data-index'));
+                    if (confirm(`¿Seguro que deseas eliminar "${productos[i].nombre}"?`)) {
+                        productos.splice(i, 1);
+                        saveToLS();
+                        renderProducts();
+                    }
+                });
+            });
+        }
+         // --- Evento para Guardar Producto ---
+        document.getElementById('productoForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const imagenesInput = document.getElementById('imagenes');
+            let imagenes = [];
+
+            try {
+                imagenes = await readFilesAsDataURLs(imagenesInput.files);
+            } catch (err) {
+                console.error('Error leyendo imágenes', err);
+            }
+
+            const producto = {
+                id: crypto.randomUUID(),
+                producto: document.getElementById('producto').value.trim(),
+                clave: document.getElementById('clave').value.trim(),
+                nombre: document.getElementById('nombre').value.trim(),
+                precio: parseFloat(document.getElementById('precio').value),
+                stock: parseInt(document.getElementById('stock').value),
+                descripcion: document.getElementById('descripcion').value.trim(),
+                imagenes,
+            };
+
+            productos.push(producto);
+            saveToLS();
+            renderProducts();
+
+            this.reset();
+            modal.hide();
+        });
+         // --- Inicio de la App ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLS();
+            renderProducts();
+            document.getElementById('clearAll').addEventListener('click', () => {
+                if (confirm('¿Seguro que deseas borrar todos los productos?')) {
+                    productos = [];
+                    saveToLS();
+                    renderProducts();
+                }
+            });
+            
+            // --- Registro del Service Worker para PWA ---
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('service-worker.js')
+                        .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                        .catch(err => console.error('Fallo el registro del Service Worker:', err));
+                });
+            }
+        });
+    </script>
+</body>
+</html>
