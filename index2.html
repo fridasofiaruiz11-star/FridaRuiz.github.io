@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitSyle</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <meta name="theme-color" content="#014421">
+    <link rel="apple-touch-icon" href="./icons/icon.png">
+
+    <style>
+        body { background-color: #F5F5F5; }
+
+        .header-bar {
+            background-color: #09e0e0;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .buttons-container {
+            display: flex; justify-content: center; gap: 1rem;
+            margin-top: 2rem; flex-wrap: wrap;
+        }
+
+        .btn-custom {
+            background-color: #C0C0C0;
+            color: black;
+            border: none;
+        }
+
+        .btn-custom:hover { background-color: #a9a9a9; }
+
+        .thumb { height: 70px; object-fit: cover; border-radius: .35rem; }
+        .thumbs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+
+        .card-header { background-color: #36076f !important; }
+    </style>
+</head>
+<body>
+
+<header class="header-bar">
+    <h1 class="display-6 mb-0">𝐅𝐢𝐭𝐬𝐲𝐥𝐞 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐨𝐬</h1>
+</header>
+
+<main class="container py-3">
+
+    <div class="text-center">
+        <div class="buttons-container">
+            <button type="button" class="btn btn-custom btn-lg shadow-sm" data-bs-toggle="modal" data-bs-target="#productoModal">
+                <i class="bi bi-plus-square-fill me-2"></i> Registrar nuevo producto
+            </button>
+
+            <button id="clearAll" class="btn btn-custom btn-lg shadow-sm">
+                <i class="bi bi-eraser-fill me-2"></i> Limpiar todo (LocalStorage)
+            </button>
+        </div>
+    </div>
+
+    <div id="productsContainer" class="row mt-5"></div>
+</main>
+
+
+<!-- Modal de producto -->
+<div class="modal fade" id="productoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header" style="background-color:#044946; color:white;">
+                <h5 class="modal-title">Registrar nuevo producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <form id="productoForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Producto</label>
+                            <input type="text" id="producto" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Clave</label>
+                            <input type="text" id="clave" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" id="nombre" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Precio</label>
+                            <input type="number" id="precio" class="form-control" step="0.01" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Stock</label>
+                            <input type="number" id="stock" class="form-control" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Descripción</label>
+                            <textarea id="descripcion" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Imágenes</label>
+                            <input type="file" id="imagenes" class="form-control" accept="image/*" multiple>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="productoForm" class="btn btn-custom">Guardar producto</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const modal = new bootstrap.Modal(document.getElementById('productoModal'));
+    const LS_KEY = 'productos';
+    let productos = [];
+
+    function saveToLS() {
+        localStorage.setItem(LS_KEY, JSON.stringify(productos));
+    }
+
+    function loadFromLS() {
+        try {
+            productos = JSON.parse(localStorage.getItem(LS_KEY)) || [];
+        } catch {
+            productos = [];
+            localStorage.removeItem(LS_KEY);
+        }
+    }
+
+    function readFilesAsDataURLs(files) {
+        return Promise.all(
+            [...files].map(file => new Promise(res => {
+                const reader = new FileReader();
+                reader.onload = () => res({ name: file.name, dataURL: reader.result });
+                reader.readAsDataURL(file);
+            }))
+        );
+    }
+
+    function renderProducts() {
+        const container = document.getElementById('productsContainer');
+        container.innerHTML = "";
+
+        if (productos.length === 0) {
+            container.innerHTML = `<div class="col-12 text-center my-5"><p class="lead text-muted">No hay productos registrados.</p></div>`;
+            return;
+        }
+
+        productos.forEach((prod, idx) => {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4 mb-4';
+
+            const thumbs = (prod.imagenes || []).slice(0, 3)
+                .map(img => `<img class="thumb w-100" src="${img.dataURL}">`)
+                .join('');
+
+            col.innerHTML = `
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between text-white">
+                        <h5 class="mb-0">${prod.nombre}</h5>
+                        <button class="btn btn-sm btn-light" data-index="${idx}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Producto:</strong> ${prod.producto}</p>
+                        <p><strong>Clave:</strong> ${prod.clave}</p>
+                        <p><strong>Precio:</strong> $${prod.precio.toFixed(2)}</p>
+                        <p><strong>Stock:</strong> ${prod.stock}</p>
+                        <p><strong>Descripción:</strong> ${prod.descripcion || "Sin descripción"}</p>
+                        ${prod.imagenes?.length ? `<div class="thumbs-grid">${thumbs}</div>` : "<em>Sin imágenes</em>"}
+                    </div>
+                </div>
+            `;
+            container.appendChild(col);
+        });
+
+        document.querySelectorAll('[data-index]').forEach(btn => {
+            btn.onclick = e => {
+                const index = Number(e.currentTarget.dataset.index);
+                if (confirm("¿Seguro que deseas eliminar este producto?")) {
+                    productos.splice(index, 1);
+                    saveToLS();
+                    renderProducts();
+                }
+            };
+        });
+    }
+
+    document.getElementById('productoForm').addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const imagenes = await readFilesAsDataURLs(document.getElementById('imagenes').files);
+
+        const producto = {
+            id: crypto.randomUUID(),
+            producto: producto.value.trim(),
+            clave: clave.value.trim(),
+            nombre: nombre.value.trim(),
+            precio: parseFloat(precio.value),
+            stock: parseInt(stock.value),
+            descripcion: descripcion.value.trim(),
+            imagenes
+        };
+
+        productos.push(producto);
+        saveToLS();
+        renderProducts();
+
+        e.target.reset();
+        modal.hide();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFromLS();
+        renderProducts();
+
+        document.getElementById('clearAll').onclick = () => {
+            if (confirm("¿Eliminar todos los productos?")) {
+                productos = [];
+                saveToLS();
+                renderProducts();
+            }
+        };
+    });
+</script>
+
+</body>
+</html>
